@@ -1,61 +1,11 @@
-trigger:
-  branches:
-    include:
-      - terraform
-pool:
-  vmImage: 'ubuntu-latest'
+trigger: none
+pool: Lenovo
 stages:
-  - stage: TerraformPlan
-    displayName: "Terraform Plan"
-    jobs:
-      - job: Plan
-        displayName: "Terraform Init & Plan"
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-          - task: TerraformInstaller@1
-            inputs:
-              terraformVersion: '1.6.6'  # latest version as per availability
-
-          - checkout: self
-
-          - script: |
-              terraform init
-              terraform validate
-              terraform plan -out=tfplan
-            displayName: 'Terraform Init, Validate and Plan'
-
-          - publish: $(System.DefaultWorkingDirectory)/tfplan
-            artifact: terraformPlanArtifact
-
-  - stage: TerraformApply
-    displayName: "Terraform Apply"
-    dependsOn: TerraformPlan
-    condition: succeeded()
-    jobs:
-      - deployment: Apply
-        displayName: "Terraform Apply Deployment"
-        environment: 'Terraform-Prod'  # define in Azure DevOps Environments (can require approval)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: UsePythonVersion@0
-                  inputs:
-                    versionSpec: '3.x'
-                - task: TerraformInstaller@1
-                  inputs:
-                    terraformVersion: '1.6.6'
-
-                - checkout: self
-
-                - download: current
-                  artifact: terraformPlanArtifact
-
-                - script: |
-                    terraform init
-                    terraform apply tfplan
-                  displayName: 'Terraform Apply'
+- stage: Terraforminitplan
+  displayName: "Terraform init plan"
+  jobs:
+  - job: Terraforminit
+    displayName: "init"
+    steps:
+      - 
+   
